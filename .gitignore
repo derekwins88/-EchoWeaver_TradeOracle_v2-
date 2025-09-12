@@ -1,1 +1,5 @@
-__sacred__
+__pycache__/
+*.pyc
+.env
+*.log
+notebooks/__pycache__/
