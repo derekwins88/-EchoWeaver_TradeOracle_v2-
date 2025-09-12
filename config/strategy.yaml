@@ -1,1 +1,25 @@
-# Strategy configuration placeholder
+# strategy.yaml — motif gates
+
+risk_profile: medium
+
+timeframes:
+  - 1h
+  - 4h
+  - 1d
+
+entropy_thresholds:
+  entry: 0.35
+  exit: 0.15
+
+roi_targets:
+  min: 0.02  # 2%
+  max: 0.20  # 20%
+
+emotional_modifiers:
+  greed: 1.15
+  fear: 0.85
+  boredom: 0.65
+
+feedback_hooks:
+  enable_ceremonial_feedback: true
+  codex_prompt_injection: true
