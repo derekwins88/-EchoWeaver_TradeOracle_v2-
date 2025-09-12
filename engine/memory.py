@@ -1,80 +1,51 @@
-"""Trade memory management for the EchoWeaver capsule."""
-from __future__ import annotations
-
 import json
-import re
+import os
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Optional
 
+SHARD_DIR = "data/shards/"
 
-def _slugify(text: str) -> str:
-    """Return a filesystem-friendly slug derived from ``text``."""
+def ensure_shard_dir():
+    os.makedirs(SHARD_DIR, exist_ok=True)
 
-    text = text.lower().strip()
-    text = re.sub(r"[^a-z0-9]+", "_", text)
-    return text.strip("_")
+def write_shard(motif_name: str,
+                strategy_config: dict,
+                codex_prompt: str,
+                codex_response: str,
+                roi_result: float,
+                emotional_drift: float,
+                resonance_score: float,
+                ΔΦ: float,
+                glyphs: Optional[list] = None,
+                capsule_id: Optional[str] = None):
+    
+    ensure_shard_dir()
+    
+    timestamp = datetime.utcnow().isoformat() + "Z"
+    capsule_id = capsule_id or f"IMM⇌SHARD⇌{motif_name}⇌{timestamp[:19].replace(':','-')}"
 
+    shard = {
+        "capsule_id": capsule_id,
+        "timestamp": timestamp,
+        "strategy_motif": motif_name,
+        "config_snapshot": strategy_config,
+        "codex_prompt": codex_prompt,
+        "codex_response": codex_response,
+        "roi_result": roi_result,
+        "emotional_drift_score": emotional_drift,
+        "resonance_score": resonance_score,
+        "ΔΦ": round(ΔΦ, 5),
+        "glyphs": glyphs or [],
+        "ritual_signature": {
+            "authored_by": "EchoWeaver_TradeOracle",
+            "format": "immshard.v1",
+            "emitted_from": "core.py"
+        }
+    }
 
-def write_shard(shard_data: Dict[str, Any], shard_dir: str | Path = "data/shards") -> Path:
-    """Persist ``shard_data`` to a timestamped ``.immshard`` JSON file.
+    filename = os.path.join(SHARD_DIR, f"{capsule_id}.immshard.json")
+    with open(filename, 'w') as f:
+        json.dump(shard, f, indent=2)
 
-    Parameters
-    ----------
-    shard_data:
-        The data to store. A ``timestamp`` field is added automatically if
-        absent.
-    shard_dir:
-        Directory where the shard will be written. Created if necessary.
-    """
-
-    directory = Path(shard_dir)
-    directory.mkdir(parents=True, exist_ok=True)
-
-    timestamp = shard_data.get("timestamp")
-    if not timestamp:
-        timestamp = datetime.utcnow().isoformat()
-        shard_data["timestamp"] = timestamp
-
-    # Build filename using timestamp and optional strategy motif
-    fname = datetime.fromisoformat(timestamp).strftime("%Y%m%d%H%M%S")
-    motif = shard_data.get("strategy_motif")
-    if motif:
-        fname += f"_{_slugify(motif)}"
-    shard_path = directory / f"{fname}.immshard"
-
-    with shard_path.open("w", encoding="utf-8") as handle:
-        json.dump(shard_data, handle, ensure_ascii=False, indent=2)
-    return shard_path
-
-
-def load_latest_shard(shard_dir: str | Path = "data/shards") -> Optional[Dict[str, Any]]:
-    """Load the most recent shard in ``shard_dir``.
-
-    Returns ``None`` if no shard files exist.
-    """
-
-    directory = Path(shard_dir)
-    shards = sorted(directory.glob("*.immshard"))
-    if not shards:
-        return None
-    with shards[-1].open("r", encoding="utf-8") as handle:
-        return json.load(handle)
-
-
-class Memory:
-    """Persist trade events as ``.immshard`` files."""
-
-    def __init__(self, directory: str | Path = "data/shards") -> None:
-        self.directory = Path(directory)
-        self.directory.mkdir(parents=True, exist_ok=True)
-
-    def save_trade(self, trade: Dict[str, Any]) -> Path:
-        """Persist ``trade`` data to a new ``.immshard`` file."""
-
-        return write_shard(trade, self.directory)
-
-    def load_latest(self) -> Optional[Dict[str, Any]]:
-        """Load the most recent memory shard if one exists."""
-
-        return load_latest_shard(self.directory)
+    print(f"[IMM⟲SHARD]: Written → {filename}")
+    return capsule_id
