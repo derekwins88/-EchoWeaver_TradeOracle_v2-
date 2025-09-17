@@ -1,0 +1,10 @@
+ccxt
+numpy
+pandas
+plotly
+kaleido
+matplotlib
+pyyaml
+pytest
+flake8
+jupyter

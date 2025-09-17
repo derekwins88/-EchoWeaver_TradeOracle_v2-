@@ -3,3 +3,6 @@ __pycache__/
 .env
 *.log
 notebooks/__pycache__/
+artifacts/
+data/capsules.jsonl
+.venv/
