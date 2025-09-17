@@ -1,25 +1,38 @@
-# strategy.yaml — motif gates
-
-risk_profile: medium
-
-timeframes:
-  - 1h
-  - 4h
-  - 1d
-
-entropy_thresholds:
-  entry: 0.35
-  exit: 0.15
-
-roi_targets:
-  min: 0.02  # 2%
-  max: 0.20  # 20%
-
-emotional_modifiers:
-  greed: 1.15
-  fear: 0.85
-  boredom: 0.65
-
-feedback_hooks:
-  enable_ceremonial_feedback: true
-  codex_prompt_injection: true
+motif_gates:
+  bullish_reversal:
+    min_entropy: 0.045
+    ema_fast: 8
+    ema_slow: 21
+    min_volume_z: 0.3
+  bearish_reversal:
+    max_entropy: 0.12
+    ema_fast: 8
+    ema_slow: 21
+    max_volume_z: -0.3
+entropy:
+  collapse_threshold: 0.25
+  expansion_threshold: 0.75
+  histogram_bins: 12
+emotional_drift:
+  volatility_window: 14
+  volume_spike_threshold: 1.8
+  sentiment_smoothing: 5
+roi_resonance:
+  profit_weight: 0.7
+  risk_weight: 0.2
+  conviction_weight: 0.1
+capsule:
+  output_path: data/capsules.jsonl
+  ensure_directory: true
+narrative:
+  tone: mythic
+  include_entropy_regime: true
+exchange:
+  name: binance
+  sandbox_mode: true
+  enable_paper: true
+simulation:
+  seed: 7
+  bars: 180
+  symbol: BTC/USDT
+  timeframe: 1h
