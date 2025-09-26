@@ -1,0 +1,11 @@
+watch_dir: "inbox/signals"
+state_dir: "artifacts/pipe_state"
+dlq_dir: "artifacts/dlq"
+log_dir: "artifacts/pipe_logs"
+file_glob: "*.ndjson"
+debounce_ms: 400
+batch_max: 256
+batch_timeout_ms: 1000
+retry_max: 5
+retry_backoff_ms: 500
+dedupe_window: 10000

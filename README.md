@@ -145,3 +145,22 @@ Want me to also:
 If yes, tell me which repo(s) first and I’ll drop the glue functions + unit tests right away.
 
 —
+
+## Live Pipe — watch directory → TradeOracle
+
+The Live Pipe monitors ``inbox/signals/*.ndjson`` for new ``Signal`` rows, validates them, and batches dispatches to the TradeOracle via ``OracleAdapter``.
+
+**Run**
+```bash
+# Optional: pip install watchdog  (event-driven mode; polling fallback without it)
+python scripts/run_live_pipe.py --config config/live_pipe.yaml
+```
+
+How it works
+- Idempotent: keeps per-file byte offsets in ``artifacts/pipe_state`` and de-duplicates by ``Signal.id``.
+- Resumable: restarts pick up from the last saved offset.
+- Safe: malformed lines route to ``artifacts/dlq`` and dispatch failures retry before landing in a DLQ batch file.
+- Validated: leverages the shared ``Signal`` JSON Schema via ``common/io_loader.py``.
+
+Wire your oracle
+Replace the ``DemoOracle`` stub in ``scripts/run_live_pipe.py`` with your TradeOracle integration and adapt the call inside ``OracleAdapter.dispatch_signals`` if your entrypoint differs from ``handle_signal``.
