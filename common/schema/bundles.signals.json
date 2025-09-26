@@ -1,0 +1,6 @@
+{
+  "$id": "https://spec.local/brain/signals_bundle.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "items": { "$ref": "https://spec.local/brain/signal.json" }
+}

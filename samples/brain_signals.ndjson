@@ -1,0 +1,2 @@
+{"id":"sig-2025-09-25-NQ-0001","timestamp":"2025-09-25T08:00:03Z","symbol":"NQ","side":"LONG","confidence":0.74,"entropy_score":0.38,"regime_state":"trend_up","features":{"rsi":58.3,"vwap_dev":-0.12}}
+{"id":"sig-2025-09-25-CL-0007","timestamp":"2025-09-25T08:02:10Z","symbol":"CL","side":"SHORT","confidence":0.52,"entropy_score":0.61,"regime_state":"volatile"}

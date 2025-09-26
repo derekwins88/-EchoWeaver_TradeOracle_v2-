@@ -104,3 +104,44 @@ Released under the [MIT License](LICENSE).
 
 ## 🧿 A Final Whisper
 > "The market murmurs through entropy, and EchoWeaver replies with memory and myth."
+
+## Common IO & Validation
+
+This repo ships a shared **Vocabulary Map** and **JSON Schemas** for cross-repo interoperability:
+
+- Brain → Oracle: `common/schema/brain.signal.json`
+- Oracle logs: `common/schema/oracle.trade_event.json`
+- Oracle summary (to Portfolio): `common/schema/oracle.strategy_return.json`
+- Portfolio allocations: `common/schema/portfolio.allocation.json`
+- Shared defs: `common/schema/defs.json`
+
+**Validate locally**
+```bash
+make validate-io
+# or
+python scripts/validate_io.py --schema common/schema/brain.signal.json --file samples/brain_signals.ndjson
+```
+
+**CI**
+A workflow validates the samples on every PR to prevent schema drift.
+
+---
+
+## 5) How to wire in each repo (quick notes)
+
+- **Brain**: emit Signals conforming to `brain.signal.json` (write to NDJSON).
+- **TradeOracle**:
+  - read Signals → execute,
+  - emit `trade_events.ndjson` (TradeEvent),
+  - emit `strategy_returns.ndjson` (StrategyReturn).
+- **Entropy-Portfolio-Lab**: read `strategy_returns.ndjson` across symbols/strategies → produce `portfolio_allocation.json`.
+
+---
+
+Want me to also:
+- add a **Python loader** (`common/io_loader.py`) that auto-validates on read/write,
+- or patch your **data pipes** in EchoWeaver/Entropy-Portfolio-Lab to write/read these exact formats?
+
+If yes, tell me which repo(s) first and I’ll drop the glue functions + unit tests right away.
+
+—

@@ -1,0 +1,10 @@
+{
+  "id": "alloc-2025-09-25-v1",
+  "timestamp": "2025-09-25T21:05:00Z",
+  "allocations": [
+    { "strategy": "SigmaBloom", "symbol": "CL", "weight": 0.45, "entropy_risk": 0.32 },
+    { "strategy": "EchoWeaver", "symbol": "NQ", "weight": 0.35, "entropy_risk": 0.41 },
+    { "strategy": "GammaLite", "symbol": "ES", "weight": 0.20, "entropy_risk": 0.28 }
+  ],
+  "constraints": { "max_symbol_weight": 0.5 }
+}

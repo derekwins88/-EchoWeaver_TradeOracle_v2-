@@ -1,0 +1,2 @@
+{"id":"evt-2025-09-25-001","timestamp":"2025-09-25T08:01:10Z","symbol":"CL","event":"ENTER","side":"LONG","qty":2,"price":80.14,"regime_state":"trend_up","entropy_score":0.41,"trade_id":"trade-CL-2025-0925-A","signal_id":"sig-2025-09-25-CL-0007"}
+{"id":"evt-2025-09-25-002","timestamp":"2025-09-25T08:09:40Z","symbol":"CL","event":"TAKE_PROFIT","side":"LONG","qty":1,"price":80.98}
