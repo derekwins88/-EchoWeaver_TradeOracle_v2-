@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Optional
+from pathlib import Path
+from typing import Dict, List, Optional
 
 import pandas as pd
 import yaml
@@ -23,15 +24,37 @@ class _OraclePerformanceTracker:
     """Lightweight equity tracker for the oracle's advisory risk modules."""
 
     starting_equity: float = 100_000.0
+    export_metrics: bool = True
+    metrics_path: Optional[str] = None
 
     def __post_init__(self) -> None:
-        self.equity: float = self.starting_equity
+        self._csv_path: Optional[Path]
+        if self.export_metrics:
+            default_path = Path("artifacts") / "AethelredsAegis_metrics.csv"
+            self._csv_path = Path(self.metrics_path).expanduser() if self.metrics_path else default_path
+        else:
+            self._csv_path = None
+        self.reset()
+
+    def reset(self) -> None:
+        """Reset stateful metrics to the configured starting equity."""
+
+        self.equity: float = float(self.starting_equity)
         self._day_pnl: float = 0.0
         self._week_pnl: float = 0.0
         self._current_day = None
         self._current_week = None
+        self._last_closed_day = None
         self.loss_streak: int = 0
         self.wins_since_bottom: int = 0
+        self._sod_equity: float = self.equity
+        self._sow_equity: float = self.equity
+        self._daily_returns: List[float] = []
+        if self.export_metrics:
+            self._csv_rows: List[str] = ["date,sod_equity,eod_equity,day_pnl,day_roi"]
+        else:
+            self._csv_rows = []
+        self._csv_dirty: bool = self.export_metrics
 
     def observe(self, timestamp) -> None:
         if timestamp is None:
@@ -40,12 +63,17 @@ class _OraclePerformanceTracker:
         day = ts.date()
         iso = ts.isocalendar()
         week = (int(iso.year), int(iso.week))
-        if self._current_day != day:
+        if self._current_day is None:
             self._current_day = day
-            self._day_pnl = 0.0
+            self._sod_equity = self.equity
+        elif self._current_day != day:
+            self._close_out_day(self._current_day)
+            self._current_day = day
+            self._sod_equity = self.equity
         if self._current_week != week:
             self._current_week = week
             self._week_pnl = 0.0
+            self._sow_equity = self.equity
 
     def register_trade(self, pnl: float, timestamp) -> None:
         self.observe(timestamp)
@@ -60,7 +88,10 @@ class _OraclePerformanceTracker:
             self.wins_since_bottom += 1
 
     def equity_snapshot(self, start_of_day: bool = False, start_of_week: bool = False) -> float:
-        _ = start_of_day, start_of_week
+        if start_of_day:
+            return self._sod_equity
+        if start_of_week:
+            return self._sow_equity
         return self.equity
 
     def pnl_window(self, window: str = "day") -> float:
@@ -70,6 +101,46 @@ class _OraclePerformanceTracker:
         if kind == "losses":
             return self.loss_streak
         return self.wins_since_bottom
+
+    def daily_returns(self) -> List[float]:
+        return list(self._daily_returns)
+
+    def average_daily_return(self) -> float:
+        if not self._daily_returns:
+            return 0.0
+        return float(sum(self._daily_returns) / len(self._daily_returns))
+
+    def finalize(self) -> None:
+        if self._current_day is not None and self._current_day != self._last_closed_day:
+            self._close_out_day(self._current_day)
+            self._current_day = None
+        if self.export_metrics and self._csv_path is not None and self._csv_rows and self._csv_dirty:
+            try:
+                self._csv_path.parent.mkdir(parents=True, exist_ok=True)
+                with self._csv_path.open("w", encoding="utf-8") as handle:
+                    handle.write("\n".join(self._csv_rows) + "\n")
+                self._csv_dirty = False
+            except OSError:
+                pass
+        if self._daily_returns:
+            adr_pct = self.average_daily_return() * 100.0
+            print(f"[Aegis] ADR: {adr_pct:.3f}% over {len(self._daily_returns)} trading days")
+
+    def _close_out_day(self, day) -> None:
+        day_pnl = self._day_pnl
+        eod_equity = self.equity
+        sod_equity = self._sod_equity
+        day_roi = (eod_equity - sod_equity) / sod_equity if sod_equity > 0 else 0.0
+        self._daily_returns.append(day_roi)
+        if self.export_metrics:
+            date_str = pd.Timestamp(day).strftime("%Y-%m-%d")
+            self._csv_rows.append(
+                f"{date_str},{sod_equity:.2f},{eod_equity:.2f},{day_pnl:.2f},{day_roi:.6f}"
+            )
+            self._csv_dirty = True
+        self._day_pnl = 0.0
+        self._sod_equity = self.equity
+        self._last_closed_day = day
 
 
 class TradeOracle:
@@ -102,7 +173,13 @@ class TradeOracle:
         exchange_config = self.config.get("exchange", {})
         self.exchange = exchange if exchange is not None else build_exchange(exchange_config)
         self.paper_mode = isinstance(self.exchange, PaperExchange)
-        self.performance = _OraclePerformanceTracker()
+
+        metrics_config = self.config.get("metrics", {})
+        self.performance = _OraclePerformanceTracker(
+            starting_equity=float(metrics_config.get("initial_cash", 100_000.0)),
+            export_metrics=bool(metrics_config.get("export_csv", True)),
+            metrics_path=metrics_config.get("output_path"),
+        )
 
         risk_cfg = RiskConfig(**self.config.get("risk", {}))
         sizing_cfg = SizerConfig(**self.config.get("sizing", {}))
@@ -214,6 +291,7 @@ class TradeOracle:
         return self.ritualize(frame, symbol, persist_capsule=persist_capsule, execute_trade=execute_trade)
 
     def backtest(self, frame: pd.DataFrame, symbol: str) -> pd.DataFrame:
+        self.performance.reset()
         results = []
         min_window = max(self.drift_tracker.window, 30)
         for end in range(min_window, len(frame) + 1):
@@ -234,7 +312,9 @@ class TradeOracle:
                     "sentiment": drift_dict["sentiment"],
                 }
             )
-        return pd.DataFrame(results)
+        outcome = pd.DataFrame(results)
+        self.performance.finalize()
+        return outcome
 
     def _craft_order(
         self,
