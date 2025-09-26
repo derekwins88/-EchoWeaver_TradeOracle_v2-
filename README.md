@@ -74,6 +74,25 @@ results = oracle.backtest(frame, symbol="BTC/USDT")
 print(results.tail())
 ```
 
+## 🛡️ Risk & Walk-Forward
+This version ships with a risk governor (daily/weekly caps, streak throttling),
+volatility-aware sizing, a stop manager, and walk-forward/placebo harnesses.
+
+**Quick start**
+
+```bash
+# Walk-Forward evaluation (adjust calendar boundaries as needed)
+python scripts/wfo.py --config config/strategy.yaml \
+  --dates 2024-01-01,2024-04-01,2024-07-01,2024-10-01 \
+  --seed 42 --outdir artifacts/wfo
+
+# Placebo (signal-shuffled) guardrail runs
+python scripts/placebo.py --config config/strategy.yaml \
+  --start 2024-01-01 --end 2024-06-30 --runs 20 --seed 123
+```
+
+Artifacts are written to `artifacts/wfo` and `artifacts/placebo` respectively.
+
 ## 🤝 Contributing
 1. Fork the repository and create a virtual environment.
 2. Implement changes with clear docstrings and mythic-friendly log messages.

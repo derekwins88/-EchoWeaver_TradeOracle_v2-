@@ -1,0 +1,47 @@
+name: Risk Guardrails
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  risk-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt || true
+          pip install numpy pyyaml
+      - name: Unit tests
+        run: |
+          pytest -q || pytest -q --maxfail=1
+      - name: Mini walk-forward
+        run: |
+          python scripts/wfo.py --config config/strategy.yaml --dates 2024-01-01,2024-04-01,2024-07-01,2024-10-01 --seed 42 --outdir artifacts/wfo_ci
+      - name: Enforce guardrails
+        run: |
+          python - <<'PY'
+          import csv
+          import sys
+
+          with open("artifacts/wfo_ci/summary.csv", newline="", encoding="utf-8") as handle:
+              rows = list(csv.DictReader(handle))
+          if not rows:
+              print("❌ No WFO rows produced")
+              sys.exit(1)
+          last = rows[-1]
+          maxdd = float(last.get("MaxDD", 0))
+          mar = float(last.get("MAR", 0))
+          if maxdd < -0.15:
+              print(f"❌ MaxDD too low: {maxdd}")
+              sys.exit(1)
+          if mar < 0.30:
+              print(f"❌ MAR too low: {mar}")
+              sys.exit(1)
+          print("✅ Guardrails OK")
+          PY
