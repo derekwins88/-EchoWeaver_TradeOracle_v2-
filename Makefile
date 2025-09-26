@@ -1,3 +1,4 @@
+.PHONY: live-pipe
 .PHONY: validate-io
 validate-io:
 	python scripts/validate_io.py --schema common/schema/brain.signal.json --file samples/brain_signals.ndjson
@@ -18,3 +19,6 @@ io-summarize:
 
 test:
 	pytest -q
+
+live-pipe:
+	python scripts/run_live_pipe.py --config config/live_pipe.yaml
