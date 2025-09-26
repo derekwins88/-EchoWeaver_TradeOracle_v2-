@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import subprocess
 import sys
+
+
 def run_cli(*args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run([sys.executable, "scripts/io_cli.py", *args], check=False, text=True)
 
