@@ -1,0 +1,15 @@
+{
+  "$id": "https://spec.local/common/defs.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "isoTimestamp": { "type": "string", "format": "date-time" },
+    "symbol": { "type": "string", "minLength": 1, "maxLength": 50 },
+    "id": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "hash": { "type": "string", "pattern": "^(sha256|blake3):[A-Fa-f0-9]{64}$" },
+    "regimeState": {
+      "type": "string",
+      "enum": ["flat", "trend_up", "trend_down", "volatile", "collapsing", "recovering"]
+    },
+    "side": { "type": "string", "enum": ["LONG", "SHORT", "FLAT"] }
+  }
+}

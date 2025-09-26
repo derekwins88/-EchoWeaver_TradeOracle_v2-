@@ -1,0 +1,21 @@
+{
+  "$id": "https://spec.local/brain/signal.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "https://spec.local/common/defs.json",
+  "title": "Signal",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": { "$ref": "https://spec.local/common/defs.json#/$defs/id" },
+    "timestamp": { "$ref": "https://spec.local/common/defs.json#/$defs/isoTimestamp" },
+    "symbol": { "$ref": "https://spec.local/common/defs.json#/$defs/symbol" },
+    "side": { "$ref": "https://spec.local/common/defs.json#/$defs/side" },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "entropy_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "regime_state": { "$ref": "https://spec.local/common/defs.json#/$defs/regimeState" },
+    "features": { "type": "object", "additionalProperties": { "type": ["number", "string", "boolean"] } },
+    "hash": { "$ref": "https://spec.local/common/defs.json#/$defs/hash" },
+    "capsule_id": { "type": "string" }
+  },
+  "required": ["id", "timestamp", "symbol", "side", "confidence", "entropy_score", "regime_state"]
+}

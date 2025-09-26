@@ -1,0 +1,25 @@
+{
+  "$id": "https://spec.local/oracle/trade_event.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "https://spec.local/common/defs.json",
+  "title": "TradeEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": { "$ref": "https://spec.local/common/defs.json#/$defs/id" },
+    "timestamp": { "$ref": "https://spec.local/common/defs.json#/$defs/isoTimestamp" },
+    "symbol": { "$ref": "https://spec.local/common/defs.json#/$defs/symbol" },
+    "event": { "type": "string", "enum": ["ENTER", "SCALE_IN", "EXIT", "STOP", "TAKE_PROFIT", "REVERSE"] },
+    "side": { "$ref": "https://spec.local/common/defs.json#/$defs/side" },
+    "qty": { "type": "number" },
+    "price": { "type": "number" },
+    "regime_state": { "$ref": "https://spec.local/common/defs.json#/$defs/regimeState" },
+    "entropy_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "pnl": { "type": "number" },
+    "trade_id": { "type": "string" },
+    "signal_id": { "type": "string" },
+    "hash": { "$ref": "https://spec.local/common/defs.json#/$defs/hash" },
+    "meta": { "type": "object", "additionalProperties": true }
+  },
+  "required": ["id", "timestamp", "symbol", "event", "side", "qty", "price"]
+}

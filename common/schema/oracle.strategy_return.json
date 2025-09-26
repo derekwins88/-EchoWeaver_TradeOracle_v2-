@@ -1,0 +1,20 @@
+{
+  "$id": "https://spec.local/oracle/strategy_return.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "https://spec.local/common/defs.json",
+  "title": "StrategyReturn",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": { "$ref": "https://spec.local/common/defs.json#/$defs/id" },
+    "timestamp": { "$ref": "https://spec.local/common/defs.json#/$defs/isoTimestamp" },
+    "strategy": { "type": "string" },
+    "symbol": { "$ref": "https://spec.local/common/defs.json#/$defs/symbol" },
+    "pnl": { "type": "number" },
+    "equity": { "type": "number" },
+    "drawdown": { "type": "number", "minimum": 0 },
+    "sharpe": { "type": "number" },
+    "regime_state": { "$ref": "https://spec.local/common/defs.json#/$defs/regimeState" }
+  },
+  "required": ["id", "timestamp", "strategy", "symbol", "pnl", "equity"]
+}

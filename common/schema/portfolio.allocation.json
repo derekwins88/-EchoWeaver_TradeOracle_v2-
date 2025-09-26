@@ -1,0 +1,32 @@
+{
+  "$id": "https://spec.local/portfolio/allocation.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "https://spec.local/common/defs.json",
+  "title": "PortfolioAllocation",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": { "$ref": "https://spec.local/common/defs.json#/$defs/id" },
+    "timestamp": { "$ref": "https://spec.local/common/defs.json#/$defs/isoTimestamp" },
+    "allocations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "strategy": { "type": "string" },
+          "symbol": { "$ref": "https://spec.local/common/defs.json#/$defs/symbol" },
+          "weight": { "type": "number", "minimum": 0, "maximum": 1 },
+          "entropy_risk": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "required": ["strategy", "symbol", "weight"]
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": { "type": ["number", "string", "boolean"] }
+    },
+    "hash": { "$ref": "https://spec.local/common/defs.json#/$defs/hash" }
+  },
+  "required": ["id", "timestamp", "allocations"]
+}

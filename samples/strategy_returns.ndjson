@@ -1,0 +1,2 @@
+{"id":"ret-2025-09-25-CL-SigmaBloom","timestamp":"2025-09-25T21:00:00Z","strategy":"SigmaBloom","symbol":"CL","pnl":1250.0,"equity":101250.0,"drawdown":0.012,"sharpe":1.8,"regime_state":"trend_up"}
+{"id":"ret-2025-09-25-NQ-EchoWeaver","timestamp":"2025-09-25T21:00:00Z","strategy":"EchoWeaver","symbol":"NQ","pnl":-350.0,"equity":99850.0,"drawdown":0.018,"sharpe":1.2,"regime_state":"volatile"}
